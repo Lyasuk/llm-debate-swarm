@@ -1,0 +1,40 @@
+# Eval-only config: same multi-provider consensus as the default, but a reduced
+# debate swarm (fewer agents/rounds) so the swarm comparison stays tractable
+# under Groq free-tier rate limits. The shipped engine uses the full 30-agent
+# swarm (see config.yaml); this is purely for cost/time-bounded evaluation.
+
+analysis:
+  min_models_required: 1
+  extremizing_factor: 1.15
+  models:
+    - { name: claude-haiku-4-5-20251001, provider: anthropic, weight: 0.40 }
+    - { name: llama-3.3-70b-versatile,   provider: groq,      weight: 0.30 }
+    - { name: qwen/qwen3-32b,            provider: groq,      weight: 0.30 }
+
+swarm:
+  enabled: true
+  provider: groq
+  swarm_model: llama-3.3-70b-versatile   # better JSON adherence than 8b
+  meta_model: claude-haiku-4-5-20251001
+  agent_count: 6
+  debate_rounds: 3
+  blind_rounds: 2
+  premortem_round: 2
+  devils_advocate_count: 2
+  batch_size: 1                       # one agent at a time to stay under Groq free-tier TPM
+  trim_pct: 0.10
+  temperature: 0.7
+  max_tokens_per_response: 450
+  timeout_sec: 180
+  bucket_models: { premium: llama-3.1-8b-instant, standard: llama-3.1-8b-instant, nano: llama-3.1-8b-instant }
+  bucket_rpd_limits: { premium: 14400, standard: 14400, nano: 14400 }
+
+research:
+  document_max_chars: 15000
+  cache_ttl_hours: 6
+  sources:
+    tavily: { enabled: false, max_results: 10 }
+
+tracking:
+  db_path: data/runs.db
+  report_interval: daily

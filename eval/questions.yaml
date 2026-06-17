@@ -1,0 +1,260 @@
+_meta:
+  source: Polymarket Gamma API (public resolved markets)
+  min_resolution_date: '2026-01-01'
+  min_volume_usd: 30000.0
+  count: 50
+  note: Public question+outcome only. Some questions may predate model training cutoffs
+    (leakage); the consensus-vs-swarm comparison is leakage-robust since all configs
+    see the same questions.
+questions:
+- question: MicroStrategy sells any Bitcoin by May 31, 2026?
+  outcome: 0.0
+  resolution_date: '2026-06-04'
+  volume_usd: 375813105
+  market_id: '2169995'
+- question: US forces enter Iran by April 30?
+  outcome: 1.0
+  resolution_date: '2026-04-09'
+  volume_usd: 269049107
+  market_id: '1640919'
+- question: Fed decreases interest rates by 50+ bps after January 2026 meeting?
+  outcome: 0.0
+  resolution_date: '2026-01-28'
+  volume_usd: 235065167
+  market_id: '601697'
+- question: Fed increases interest rates by 25+ bps after January 2026 meeting?
+  outcome: 0.0
+  resolution_date: '2026-01-28'
+  volume_usd: 216455743
+  market_id: '601700'
+- question: US x Iran ceasefire extended by April 22, 2026?
+  outcome: 0.0
+  resolution_date: '2026-05-01'
+  volume_usd: 203621392
+  market_id: '2036399'
+- question: US x Iran ceasefire by April 7?
+  outcome: 1.0
+  resolution_date: '2026-04-11'
+  volume_usd: 173696184
+  market_id: '1706788'
+- question: Will the Fed increase interest rates by 25+ bps after the March 2026 meeting?
+  outcome: 0.0
+  resolution_date: '2026-03-18'
+  volume_usd: 172972057
+  market_id: '654415'
+- question: US government shutdown Saturday?
+  outcome: 1.0
+  resolution_date: '2026-02-04'
+  volume_usd: 157296576
+  market_id: '680392'
+- question: Russia x Ukraine ceasefire by May 31, 2026?
+  outcome: 1.0
+  resolution_date: '2026-05-09'
+  volume_usd: 141250713
+  market_id: '1795527'
+- question: Khamenei out as Supreme Leader of Iran by February 28?
+  outcome: 1.0
+  resolution_date: '2026-03-04'
+  volume_usd: 131114971
+  market_id: '1180303'
+- question: Will Trump nominate Judy Shelton as the next Fed chair?
+  outcome: 0.0
+  resolution_date: '2026-03-04'
+  volume_usd: 127684065
+  market_id: '572473'
+- question: No change in Fed interest rates after January 2026 meeting?
+  outcome: 1.0
+  resolution_date: '2026-01-28'
+  volume_usd: 106767096
+  market_id: '601699'
+- question: Netanyahu out by March 31?
+  outcome: 0.0
+  resolution_date: '2026-04-05'
+  volume_usd: 104205875
+  market_id: '1484949'
+- question: Fed decreases interest rates by 25 bps after January 2026 meeting?
+  outcome: 0.0
+  resolution_date: '2026-01-28'
+  volume_usd: 101211543
+  market_id: '601698'
+- question: Israel x Hezbollah ceasefire by April 18, 2026?
+  outcome: 1.0
+  resolution_date: '2026-04-21'
+  volume_usd: 98599882
+  market_id: '1994007'
+- question: Will Chelsea win the 2025–26 English Premier League?
+  outcome: 0.0
+  resolution_date: '2026-03-21'
+  volume_usd: 91279170
+  market_id: '566189'
+- question: US strikes Iran by February 28, 2026?
+  outcome: 1.0
+  resolution_date: '2026-02-28'
+  volume_usd: 89652867
+  market_id: '1198423'
+- question: Will the Fed decrease interest rates by 25 bps after the March 2026 meeting?
+  outcome: 0.0
+  resolution_date: '2026-03-18'
+  volume_usd: 87103284
+  market_id: '654413'
+- question: 'Will Eleven die in "Stranger Things: Season 5"?'
+  outcome: 0.0
+  resolution_date: '2026-01-05'
+  volume_usd: 80824835
+  market_id: '812010'
+- question: Xi Jinping out in 2025?
+  outcome: 0.0
+  resolution_date: '2026-01-01'
+  volume_usd: 78655912
+  market_id: '551963'
+- question: Will there be no change in Fed interest rates after the April 2026 meeting?
+  outcome: 1.0
+  resolution_date: '2026-04-29'
+  volume_usd: 76909226
+  market_id: '669662'
+- question: US forces enter Iran by March 31?
+  outcome: 0.0
+  resolution_date: '2026-04-05'
+  volume_usd: 73927762
+  market_id: '1162940'
+- question: Russia x Ukraine ceasefire in 2025?
+  outcome: 0.0
+  resolution_date: '2026-01-01'
+  volume_usd: 73752993
+  market_id: '516719'
+- question: Khamenei out as Supreme Leader of Iran by March 31?
+  outcome: 1.0
+  resolution_date: '2026-03-04'
+  volume_usd: 63238698
+  market_id: '916732'
+- question: Will Trump nominate Kevin Warsh as the next Fed chair?
+  outcome: 1.0
+  resolution_date: '2026-03-04'
+  volume_usd: 59907151
+  market_id: '572469'
+- question: Lighter market cap (FDV) >$1B one day after launch?
+  outcome: 1.0
+  resolution_date: '2026-01-03'
+  volume_usd: 55056697
+  market_id: '686122'
+- question: Iran x Israel/US conflict ends by April 7?
+  outcome: 1.0
+  resolution_date: '2026-04-25'
+  volume_usd: 48720376
+  market_id: '1706766'
+- question: Will Satoshi move any Bitcoin in 2025?
+  outcome: 0.0
+  resolution_date: '2026-01-01'
+  volume_usd: 44180792
+  market_id: '563368'
+- question: US strikes Iran by January 31, 2026?
+  outcome: 0.0
+  resolution_date: '2026-02-01'
+  volume_usd: 41754060
+  market_id: '1092199'
+- question: Will Paris Saint-Germain FC win on 2026-05-30?
+  outcome: 0.0
+  resolution_date: '2026-05-30'
+  volume_usd: 38427418
+  market_id: '2316216'
+- question: Will Leeds win the 2025–26 English Premier League?
+  outcome: 0.0
+  resolution_date: '2026-03-01'
+  volume_usd: 38359350
+  market_id: '566203'
+- question: Strait of Hormuz traffic returns to normal by end of April?
+  outcome: 0.0
+  resolution_date: '2026-05-12'
+  volume_usd: 38005859
+  market_id: '1540766'
+- question: Maduro out in 2025?
+  outcome: 0.0
+  resolution_date: '2026-01-01'
+  volume_usd: 34641401
+  market_id: '516947'
+- question: Strait of Hormuz traffic returns to normal by end of May?
+  outcome: 0.0
+  resolution_date: '2026-06-02'
+  volume_usd: 34564222
+  market_id: '1809560'
+- question: Will Atletico Madrid win the 2025–26 La Liga?
+  outcome: 0.0
+  resolution_date: '2026-04-12'
+  volume_usd: 32336187
+  market_id: '566229'
+- question: Will Bitcoin reach $1,000,000 by December 31, 2025?
+  outcome: 0.0
+  resolution_date: '2026-01-01'
+  volume_usd: 31394608
+  market_id: '516861'
+- question: Will Melania say "Career" during AI talk on Friday?
+  outcome: 0.0
+  resolution_date: '2026-01-21'
+  volume_usd: 31097575
+  market_id: '1192781'
+- question: Will Tottenham win the 2025–26 English Premier League?
+  outcome: 0.0
+  resolution_date: '2026-03-01'
+  volume_usd: 30343735
+  market_id: '566192'
+- question: U.S. anti-cartel ground operation in Mexico by January 31?
+  outcome: 1.0
+  resolution_date: '2026-02-04'
+  volume_usd: 30194310
+  market_id: '1144023'
+- question: Will Belgium win on 2026-06-15?
+  outcome: 0.0
+  resolution_date: '2026-06-16'
+  volume_usd: 29529222
+  market_id: '1897073'
+- question: Will Bitcoin reach $150,000 in February?
+  outcome: 0.0
+  resolution_date: '2026-03-01'
+  volume_usd: 28829222
+  market_id: '1303355'
+- question: Military action against Iran ends by April 17, 2026?
+  outcome: 1.0
+  resolution_date: '2026-04-17'
+  volume_usd: 28778655
+  market_id: '1706358'
+- question: Will Slavia Pragu win the 2025–26 Champions League?
+  outcome: 0.0
+  resolution_date: '2026-01-22'
+  volume_usd: 28392439
+  market_id: '566174'
+- question: Will United States win on 2026-06-12?
+  outcome: 1.0
+  resolution_date: '2026-06-13'
+  volume_usd: 27745325
+  market_id: '1897043'
+- question: Will Villarreal win the 2025–26 La Liga?
+  outcome: 0.0
+  resolution_date: '2026-04-24'
+  volume_usd: 27716401
+  market_id: '566230'
+- question: Will IR Iran win on 2026-06-15?
+  outcome: 0.0
+  resolution_date: '2026-06-16'
+  volume_usd: 26085381
+  market_id: '1897079'
+- question: QatarEnergy announces/resumes LNG production in Qatar by April 30?
+  outcome: 1.0
+  resolution_date: '2026-05-05'
+  volume_usd: 25495051
+  market_id: '1819243'
+- question: Will Saudi Aramco be the largest company in the world by market cap on
+    December 31?
+  outcome: 0.0
+  resolution_date: '2026-01-01'
+  volume_usd: 25240782
+  market_id: '516846'
+- question: Lighter market cap (FDV) >$2B one day after launch?
+  outcome: 1.0
+  resolution_date: '2026-01-03'
+  volume_usd: 25086667
+  market_id: '556033'
+- question: Will Atletico Madrid win the 2025–26 Champions League?
+  outcome: 0.0
+  resolution_date: '2026-05-06'
+  volume_usd: 24660057
+  market_id: '566146'

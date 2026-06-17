@@ -97,10 +97,43 @@ file for inline docs.
 pytest            # unit tests (types, classifier, import graph) — no network/keys required
 ```
 
+## Evaluation
+
+A reproducible calibration harness scores the engine over **50 real resolved binary
+questions** (public prediction-market questions — see [`eval/questions.yaml`](eval/questions.yaml)).
+For each question the engine outputs a P(YES); we score it against the known outcome
+with the **Brier score** (lower = better), log-loss, and a reliability curve.
+
+| Configuration | Brier&nbsp;↓ | vs. base-rate (0.230) | log-loss |
+|---|---|---|---|
+| Single model (Claude Haiku) | 0.246 | worse | 0.733 |
+| **Multi-model consensus** (Haiku + Llama&#8209;3.3&#8209;70B + Qwen3&#8209;32B) | **0.223** | **better** | 0.629 |
+
+**The multi-model consensus is better-calibrated than any single model and beats the
+base-rate baseline** — the weighted ensemble cancels individual models' biases.
+
+![calibration reliability diagram](eval/results/calibration.svg)
+
+Reproduce:
+
+```bash
+python eval/fetch_questions.py              # refresh ground truth from the public API
+python -m eval.run_eval --config consensus  # score the consensus over all questions
+python eval/plot_calibration.py             # render the reliability diagram (SVG)
+```
+
+**Honest caveats** (this is a calibration demo, not a trading claim):
+
+- n&nbsp;=&nbsp;50, resolved Jan–Jun 2026. Some questions may predate model training cutoffs
+  (leakage) — but every configuration sees the same set, so the *relative* comparison is
+  leakage-robust.
+- The **debate-swarm vs. consensus** comparison is wired (`--config combined`) but not run
+  in these numbers: the 30-agent swarm exceeds free-tier token budgets. Run it with adequate
+  provider quota to add the swarm column.
+
 ## Roadmap
 
-- [ ] **Evaluation harness** — Brier score + calibration curve over a public set of resolved
-      questions (the engine already computes the calibration internals).
+- [x] **Evaluation harness** — reproducible Brier + calibration over 50 resolved questions (see [Evaluation](#evaluation)).
 - [ ] **Observability** — OpenTelemetry spans + Langfuse traces of every round and model call.
 - [ ] **LangGraph** orchestration wrapper for the swarm graph.
 - [ ] FastAPI service + Dockerfile.

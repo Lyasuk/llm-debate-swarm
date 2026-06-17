@@ -1,4 +1,6 @@
 # llm-debate-swarm default configuration.
+# Defaults use models that are reliable and free / low-cost: Anthropic Haiku
+# plus Groq-hosted open models (Llama, Qwen) which have generous free tiers.
 # Each stage degrades gracefully if a provider's API key is missing.
 
 analysis:
@@ -6,25 +8,25 @@ analysis:
   extremizing_factor: 1.15
   models:
     - { name: claude-haiku-4-5-20251001, provider: anthropic, weight: 0.40 }
-    - { name: gpt-4o-mini,               provider: openai,    weight: 0.30 }
-    - { name: gemini-2.5-flash,          provider: google,    weight: 0.30 }
+    - { name: llama-3.3-70b-versatile,   provider: groq,      weight: 0.30 }
+    - { name: qwen/qwen3-32b,            provider: groq,      weight: 0.30 }
 
 swarm:
   enabled: true
-  provider: gemini_multi          # heterogeneous Gemma/Gemini buckets for diversity
+  provider: groq                       # heterogeneous-bucket "gemini_multi" also supported
+  swarm_model: llama-3.1-8b-instant    # fast + free on Groq
+  meta_model: claude-haiku-4-5-20251001  # meta-synthesis / bias correction
   agent_count: 30
   debate_rounds: 7
-  blind_rounds: 3                 # independent estimates first (anti-anchoring)
-  premortem_round: 6              # "assume you were wrong — why?"
+  blind_rounds: 3                      # independent estimates first (anti-anchoring)
+  premortem_round: 6                   # "assume you were wrong — why?"
   devils_advocate_count: 3
-  batch_size: 8
-  trim_pct: 0.10                  # trimmed-mean / MAD outlier rejection
+  batch_size: 6
+  trim_pct: 0.10                       # trimmed-mean / MAD outlier rejection
   temperature: 0.7
   max_tokens_per_response: 800
   timeout_sec: 180
-  meta_model: claude-haiku-4-5-20251001   # meta-synthesis / bias correction
-  swarm_model: gemma-3-27b-it
-  bucket_models:
+  bucket_models:                       # used only when provider == gemini_multi
     premium: gemini-2.5-flash-lite
     standard: gemma-3-27b-it
     nano: gemma-3-4b-it

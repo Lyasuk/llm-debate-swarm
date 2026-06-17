@@ -1,0 +1,485 @@
+{
+  "report": {
+    "n_questions": 50,
+    "config": "consensus",
+    "consensus": {
+      "n": 50,
+      "brier": 0.223,
+      "log_loss": 0.6286,
+      "base_rate_brier": 0.2304,
+      "calibration": [
+        {
+          "range": "0.0-0.2",
+          "n": 6,
+          "avg_pred": 0.091,
+          "frac_yes": 0.0
+        },
+        {
+          "range": "0.2-0.4",
+          "n": 19,
+          "avg_pred": 0.32,
+          "frac_yes": 0.368
+        },
+        {
+          "range": "0.4-0.6",
+          "n": 25,
+          "avg_pred": 0.489,
+          "frac_yes": 0.44
+        },
+        {
+          "range": "0.6-0.8",
+          "n": 0,
+          "avg_pred": null,
+          "frac_yes": null
+        },
+        {
+          "range": "0.8-1.0",
+          "n": 0,
+          "avg_pred": null,
+          "frac_yes": null
+        }
+      ]
+    },
+    "combined": {
+      "n": 50,
+      "brier": 0.223,
+      "log_loss": 0.6286,
+      "base_rate_brier": 0.2304,
+      "calibration": [
+        {
+          "range": "0.0-0.2",
+          "n": 6,
+          "avg_pred": 0.091,
+          "frac_yes": 0.0
+        },
+        {
+          "range": "0.2-0.4",
+          "n": 19,
+          "avg_pred": 0.32,
+          "frac_yes": 0.368
+        },
+        {
+          "range": "0.4-0.6",
+          "n": 25,
+          "avg_pred": 0.489,
+          "frac_yes": 0.44
+        },
+        {
+          "range": "0.6-0.8",
+          "n": 0,
+          "avg_pred": null,
+          "frac_yes": null
+        },
+        {
+          "range": "0.8-1.0",
+          "n": 0,
+          "avg_pred": null,
+          "frac_yes": null
+        }
+      ]
+    },
+    "total_cost_usd": 0.0
+  },
+  "rows": [
+    {
+      "question": "MicroStrategy sells any Bitcoin by May 31, 2026?",
+      "outcome": 0.0,
+      "consensus": 0.39349999999999996,
+      "swarm": null,
+      "combined": 0.39349999999999996,
+      "cost": 0.0
+    },
+    {
+      "question": "US forces enter Iran by April 30?",
+      "outcome": 1.0,
+      "consensus": 0.21219999999999997,
+      "swarm": null,
+      "combined": 0.21219999999999997,
+      "cost": 0.0
+    },
+    {
+      "question": "Fed decreases interest rates by 50+ bps after January 2026 meeting?",
+      "outcome": 0.0,
+      "consensus": 0.4002,
+      "swarm": null,
+      "combined": 0.4002,
+      "cost": 0.0
+    },
+    {
+      "question": "Fed increases interest rates by 25+ bps after January 2026 meeting?",
+      "outcome": 0.0,
+      "consensus": 0.43209999999999993,
+      "swarm": null,
+      "combined": 0.43209999999999993,
+      "cost": 0.0
+    },
+    {
+      "question": "US x Iran ceasefire extended by April 22, 2026?",
+      "outcome": 0.0,
+      "consensus": 0.40779999999999994,
+      "swarm": null,
+      "combined": 0.40779999999999994,
+      "cost": 0.0
+    },
+    {
+      "question": "US x Iran ceasefire by April 7?",
+      "outcome": 1.0,
+      "consensus": 0.37989999999999996,
+      "swarm": null,
+      "combined": 0.37989999999999996,
+      "cost": 0.0
+    },
+    {
+      "question": "Will the Fed increase interest rates by 25+ bps after the March 2026 meeting?",
+      "outcome": 0.0,
+      "consensus": 0.4851,
+      "swarm": null,
+      "combined": 0.4851,
+      "cost": 0.0
+    },
+    {
+      "question": "US government shutdown Saturday?",
+      "outcome": 1.0,
+      "consensus": 0.4491,
+      "swarm": null,
+      "combined": 0.4491,
+      "cost": 0.0
+    },
+    {
+      "question": "Russia x Ukraine ceasefire by May 31, 2026?",
+      "outcome": 1.0,
+      "consensus": 0.3423,
+      "swarm": null,
+      "combined": 0.3423,
+      "cost": 0.0
+    },
+    {
+      "question": "Khamenei out as Supreme Leader of Iran by February 28?",
+      "outcome": 1.0,
+      "consensus": 0.27099999999999996,
+      "swarm": null,
+      "combined": 0.27099999999999996,
+      "cost": 0.0
+    },
+    {
+      "question": "Will Trump nominate Judy Shelton as the next Fed chair?",
+      "outcome": 0.0,
+      "consensus": 0.47230000000000005,
+      "swarm": null,
+      "combined": 0.47230000000000005,
+      "cost": 0.0
+    },
+    {
+      "question": "No change in Fed interest rates after January 2026 meeting?",
+      "outcome": 1.0,
+      "consensus": 0.5854999999999999,
+      "swarm": null,
+      "combined": 0.5854999999999999,
+      "cost": 0.0
+    },
+    {
+      "question": "Netanyahu out by March 31?",
+      "outcome": 0.0,
+      "consensus": 0.3504,
+      "swarm": null,
+      "combined": 0.3504,
+      "cost": 0.0
+    },
+    {
+      "question": "Fed decreases interest rates by 25 bps after January 2026 meeting?",
+      "outcome": 0.0,
+      "consensus": 0.4577,
+      "swarm": null,
+      "combined": 0.4577,
+      "cost": 0.0
+    },
+    {
+      "question": "Israel x Hezbollah ceasefire by April 18, 2026?",
+      "outcome": 1.0,
+      "consensus": 0.45899999999999996,
+      "swarm": null,
+      "combined": 0.45899999999999996,
+      "cost": 0.0
+    },
+    {
+      "question": "Will Chelsea win the 2025\u201326 English Premier League?",
+      "outcome": 0.0,
+      "consensus": 0.3416,
+      "swarm": null,
+      "combined": 0.3416,
+      "cost": 0.0
+    },
+    {
+      "question": "US strikes Iran by February 28, 2026?",
+      "outcome": 1.0,
+      "consensus": 0.25,
+      "swarm": null,
+      "combined": 0.25,
+      "cost": 0.0
+    },
+    {
+      "question": "Will the Fed decrease interest rates by 25 bps after the March 2026 meeting?",
+      "outcome": 0.0,
+      "consensus": 0.5182,
+      "swarm": null,
+      "combined": 0.5182,
+      "cost": 0.0
+    },
+    {
+      "question": "Will Eleven die in \"Stranger Things: Season 5\"?",
+      "outcome": 0.0,
+      "consensus": 0.43289999999999995,
+      "swarm": null,
+      "combined": 0.43289999999999995,
+      "cost": 0.0
+    },
+    {
+      "question": "Xi Jinping out in 2025?",
+      "outcome": 0.0,
+      "consensus": 0.1557,
+      "swarm": null,
+      "combined": 0.1557,
+      "cost": 0.0
+    },
+    {
+      "question": "Will there be no change in Fed interest rates after the April 2026 meeting?",
+      "outcome": 1.0,
+      "consensus": 0.5101,
+      "swarm": null,
+      "combined": 0.5101,
+      "cost": 0.0
+    },
+    {
+      "question": "US forces enter Iran by March 31?",
+      "outcome": 0.0,
+      "consensus": 0.19979999999999998,
+      "swarm": null,
+      "combined": 0.19979999999999998,
+      "cost": 0.0
+    },
+    {
+      "question": "Russia x Ukraine ceasefire in 2025?",
+      "outcome": 0.0,
+      "consensus": 0.3514,
+      "swarm": null,
+      "combined": 0.3514,
+      "cost": 0.0
+    },
+    {
+      "question": "Khamenei out as Supreme Leader of Iran by March 31?",
+      "outcome": 1.0,
+      "consensus": 0.25079999999999997,
+      "swarm": null,
+      "combined": 0.25079999999999997,
+      "cost": 0.0
+    },
+    {
+      "question": "Will Trump nominate Kevin Warsh as the next Fed chair?",
+      "outcome": 1.0,
+      "consensus": 0.4828,
+      "swarm": null,
+      "combined": 0.4828,
+      "cost": 0.0
+    },
+    {
+      "question": "Lighter market cap (FDV) >$1B one day after launch?",
+      "outcome": 1.0,
+      "consensus": 0.5002,
+      "swarm": null,
+      "combined": 0.5002,
+      "cost": 0.0
+    },
+    {
+      "question": "Iran x Israel/US conflict ends by April 7?",
+      "outcome": 1.0,
+      "consensus": 0.43320000000000003,
+      "swarm": null,
+      "combined": 0.43320000000000003,
+      "cost": 0.0
+    },
+    {
+      "question": "Will Satoshi move any Bitcoin in 2025?",
+      "outcome": 0.0,
+      "consensus": 0.06490000000000001,
+      "swarm": null,
+      "combined": 0.06490000000000001,
+      "cost": 0.0
+    },
+    {
+      "question": "US strikes Iran by January 31, 2026?",
+      "outcome": 0.0,
+      "consensus": 0.2847,
+      "swarm": null,
+      "combined": 0.2847,
+      "cost": 0.0
+    },
+    {
+      "question": "Will Paris Saint-Germain FC win on 2026-05-30?",
+      "outcome": 0.0,
+      "consensus": 0.5458,
+      "swarm": null,
+      "combined": 0.5458,
+      "cost": 0.0
+    },
+    {
+      "question": "Will Leeds win the 2025\u201326 English Premier League?",
+      "outcome": 0.0,
+      "consensus": 0.034,
+      "swarm": null,
+      "combined": 0.034,
+      "cost": 0.0
+    },
+    {
+      "question": "Strait of Hormuz traffic returns to normal by end of April?",
+      "outcome": 0.0,
+      "consensus": 0.5825,
+      "swarm": null,
+      "combined": 0.5825,
+      "cost": 0.0
+    },
+    {
+      "question": "Maduro out in 2025?",
+      "outcome": 0.0,
+      "consensus": 0.3816,
+      "swarm": null,
+      "combined": 0.3816,
+      "cost": 0.0
+    },
+    {
+      "question": "Strait of Hormuz traffic returns to normal by end of May?",
+      "outcome": 0.0,
+      "consensus": 0.5789,
+      "swarm": null,
+      "combined": 0.5789,
+      "cost": 0.0
+    },
+    {
+      "question": "Will Atletico Madrid win the 2025\u201326 La Liga?",
+      "outcome": 0.0,
+      "consensus": 0.3658,
+      "swarm": null,
+      "combined": 0.3658,
+      "cost": 0.0
+    },
+    {
+      "question": "Will Bitcoin reach $1,000,000 by December 31, 2025?",
+      "outcome": 0.0,
+      "consensus": 0.033,
+      "swarm": null,
+      "combined": 0.033,
+      "cost": 0.0
+    },
+    {
+      "question": "Will Melania say \"Career\" during AI talk on Friday?",
+      "outcome": 0.0,
+      "consensus": 0.4689,
+      "swarm": null,
+      "combined": 0.4689,
+      "cost": 0.0
+    },
+    {
+      "question": "Will Tottenham win the 2025\u201326 English Premier League?",
+      "outcome": 0.0,
+      "consensus": 0.3075,
+      "swarm": null,
+      "combined": 0.3075,
+      "cost": 0.0
+    },
+    {
+      "question": "U.S. anti-cartel ground operation in Mexico by January 31?",
+      "outcome": 1.0,
+      "consensus": 0.35509999999999997,
+      "swarm": null,
+      "combined": 0.35509999999999997,
+      "cost": 0.0
+    },
+    {
+      "question": "Will Belgium win on 2026-06-15?",
+      "outcome": 0.0,
+      "consensus": 0.5017,
+      "swarm": null,
+      "combined": 0.5017,
+      "cost": 0.0
+    },
+    {
+      "question": "Will Bitcoin reach $150,000 in February?",
+      "outcome": 0.0,
+      "consensus": 0.38639999999999997,
+      "swarm": null,
+      "combined": 0.38639999999999997,
+      "cost": 0.0
+    },
+    {
+      "question": "Military action against Iran ends by April 17, 2026?",
+      "outcome": 1.0,
+      "consensus": 0.4608,
+      "swarm": null,
+      "combined": 0.4608,
+      "cost": 0.0
+    },
+    {
+      "question": "Will Slavia Pragu win the 2025\u201326 Champions League?",
+      "outcome": 0.0,
+      "consensus": 0.06130000000000001,
+      "swarm": null,
+      "combined": 0.06130000000000001,
+      "cost": 0.0
+    },
+    {
+      "question": "Will United States win on 2026-06-12?",
+      "outcome": 1.0,
+      "consensus": 0.5525,
+      "swarm": null,
+      "combined": 0.5525,
+      "cost": 0.0
+    },
+    {
+      "question": "Will Villarreal win the 2025\u201326 La Liga?",
+      "outcome": 0.0,
+      "consensus": 0.2744,
+      "swarm": null,
+      "combined": 0.2744,
+      "cost": 0.0
+    },
+    {
+      "question": "Will IR Iran win on 2026-06-15?",
+      "outcome": 0.0,
+      "consensus": 0.5167,
+      "swarm": null,
+      "combined": 0.5167,
+      "cost": 0.0
+    },
+    {
+      "question": "QatarEnergy announces/resumes LNG production in Qatar by April 30?",
+      "outcome": 1.0,
+      "consensus": 0.5066999999999999,
+      "swarm": null,
+      "combined": 0.5066999999999999,
+      "cost": 0.0
+    },
+    {
+      "question": "Will Saudi Aramco be the largest company in the world by market cap on December 31?",
+      "outcome": 0.0,
+      "consensus": 0.35439999999999994,
+      "swarm": null,
+      "combined": 0.35439999999999994,
+      "cost": 0.0
+    },
+    {
+      "question": "Lighter market cap (FDV) >$2B one day after launch?",
+      "outcome": 1.0,
+      "consensus": 0.4827,
+      "swarm": null,
+      "combined": 0.4827,
+      "cost": 0.0
+    },
+    {
+      "question": "Will Atletico Madrid win the 2025\u201326 Champions League?",
+      "outcome": 0.0,
+      "consensus": 0.22309999999999997,
+      "swarm": null,
+      "combined": 0.22309999999999997,
+      "cost": 0.0
+    }
+  ]
+}
