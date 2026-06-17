@@ -131,10 +131,37 @@ python eval/plot_calibration.py             # render the reliability diagram (SV
   in these numbers: the 30-agent swarm exceeds free-tier token budgets. Run it with adequate
   provider quota to add the swarm column.
 
+## Observability
+
+Every forecast is instrumented with **OpenTelemetry**. A run emits a span tree —
+`forecast → classify → consensus → llm.query` (one span per model) and `→ swarm` —
+carrying latency, the probability each model returned, cost, and errors as span
+attributes. Instrumentation is a no-op until enabled, so it never affects normal runs.
+
+![forecast trace](docs/sample_trace.svg)
+
+*Real captured trace of a consensus forecast: Claude Haiku (8.2&nbsp;s) was the latency
+bottleneck; the two Groq models returned in ~1.8&nbsp;s; per-model probabilities
+(0.32 / 0.54 / 0.49) fused to a 0.43 consensus. One look tells you where time went.*
+
+Capture a trace yourself:
+
+```bash
+python trace_demo.py "Will X happen by Y?"      # writes docs/sample_trace.{json,svg}
+```
+
+Stream the **same spans** to a real backend — no code change — by pointing OTLP at it:
+
+```bash
+pip install 'llm-debate-swarm[otlp]'
+export OTEL_EXPORTER_OTLP_ENDPOINT=https://cloud.langfuse.com/api/public/otel  # or Jaeger / Tempo
+python trace_demo.py "Will X happen by Y?"
+```
+
 ## Roadmap
 
 - [x] **Evaluation harness** — reproducible Brier + calibration over 50 resolved questions (see [Evaluation](#evaluation)).
-- [ ] **Observability** — OpenTelemetry spans + Langfuse traces of every round and model call.
+- [x] **Observability** — OpenTelemetry spans, exportable to Langfuse / Jaeger via OTLP (see [Observability](#observability)).
 - [ ] **LangGraph** orchestration wrapper for the swarm graph.
 - [ ] FastAPI service + Dockerfile.
 

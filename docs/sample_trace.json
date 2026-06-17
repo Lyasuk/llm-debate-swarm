@@ -1,0 +1,89 @@
+[
+  {
+    "name": "classify",
+    "span_id": "a0b06a06a6851bce",
+    "trace_id": "3c2c449ae856147c2bd2d3d6b2f51f65",
+    "parent_id": "7845443f37e8e101",
+    "start_ns": 1781719246105641693,
+    "end_ns": 1781719246108361773,
+    "duration_ms": 2.7,
+    "status": "UNSET",
+    "attributes": {}
+  },
+  {
+    "name": "llm.query",
+    "span_id": "1ccbd7cd15019357",
+    "trace_id": "3c2c449ae856147c2bd2d3d6b2f51f65",
+    "parent_id": "f1332576145ae75f",
+    "start_ns": 1781719246960862237,
+    "end_ns": 1781719248761021870,
+    "duration_ms": 1800.2,
+    "status": "UNSET",
+    "attributes": {
+      "llm.model": "llama-3.3-70b-versatile",
+      "llm.provider": "groq",
+      "llm.probability": 0.538
+    }
+  },
+  {
+    "name": "llm.query",
+    "span_id": "1c49df757de6a771",
+    "trace_id": "3c2c449ae856147c2bd2d3d6b2f51f65",
+    "parent_id": "f1332576145ae75f",
+    "start_ns": 1781719247495875000,
+    "end_ns": 1781719249321328058,
+    "duration_ms": 1825.5,
+    "status": "UNSET",
+    "attributes": {
+      "llm.model": "qwen/qwen3-32b",
+      "llm.provider": "groq",
+      "llm.probability": 0.485
+    }
+  },
+  {
+    "name": "llm.query",
+    "span_id": "0c8c6ec978f9e2d5",
+    "trace_id": "3c2c449ae856147c2bd2d3d6b2f51f65",
+    "parent_id": "f1332576145ae75f",
+    "start_ns": 1781719246108622327,
+    "end_ns": 1781719254301695492,
+    "duration_ms": 8193.1,
+    "status": "UNSET",
+    "attributes": {
+      "llm.model": "claude-haiku-4-5-20251001",
+      "llm.provider": "anthropic",
+      "llm.probability": 0.319
+    }
+  },
+  {
+    "name": "consensus",
+    "span_id": "f1332576145ae75f",
+    "trace_id": "3c2c449ae856147c2bd2d3d6b2f51f65",
+    "parent_id": "7845443f37e8e101",
+    "start_ns": 1781719246108505310,
+    "end_ns": 1781719254301830263,
+    "duration_ms": 8193.3,
+    "status": "UNSET",
+    "attributes": {
+      "models_responded": 3,
+      "consensus_probability": 0.4345,
+      "spread": 0.21900000000000003
+    }
+  },
+  {
+    "name": "forecast",
+    "span_id": "7845443f37e8e101",
+    "trace_id": "3c2c449ae856147c2bd2d3d6b2f51f65",
+    "parent_id": null,
+    "start_ns": 1781719246105575439,
+    "end_ns": 1781719254301905994,
+    "duration_ms": 8196.3,
+    "status": "UNSET",
+    "attributes": {
+      "question": "Will the Fed cut interest rates at its next meeting?",
+      "question_type": "fixed_date_event",
+      "probability": 0.4345,
+      "disagreement": 0.0
+    }
+  }
+]

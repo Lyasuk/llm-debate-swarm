@@ -160,36 +160,45 @@ class MultiLLMAnalyzer:
     async def _query_model(
         self, model_config: LLMModelConfig, prompt: str
     ) -> LLMPrediction:
-        """Query a single LLM model."""
+        """Query a single LLM model (OpenTelemetry-traced as an ``llm.query`` span)."""
+        from llm_debate_swarm.obs.tracing import get_tracer
+
         provider = model_config.provider.lower()
         model_name = model_config.name
 
-        try:
-            if provider == "anthropic":
-                return await self._query_anthropic(model_name, prompt)
-            elif provider == "openai":
-                return await self._query_openai(model_name, prompt)
-            elif provider == "google":
-                return await self._query_google(model_name, prompt)
-            elif provider == "groq":
-                return await self._query_groq(model_name, prompt)
-            else:
-                return LLMPrediction(
+        with get_tracer().start_as_current_span("llm.query") as span:
+            span.set_attribute("llm.model", model_name)
+            span.set_attribute("llm.provider", provider)
+            try:
+                if provider == "anthropic":
+                    pred = await self._query_anthropic(model_name, prompt)
+                elif provider == "openai":
+                    pred = await self._query_openai(model_name, prompt)
+                elif provider == "google":
+                    pred = await self._query_google(model_name, prompt)
+                elif provider == "groq":
+                    pred = await self._query_groq(model_name, prompt)
+                else:
+                    pred = LLMPrediction(
+                        model_name=model_name,
+                        provider=provider,
+                        probability=0.5,
+                        confidence="low",
+                        error=f"Unknown provider: {provider}",
+                    )
+            except Exception as exc:
+                log.error(f"Error querying {model_name}: {exc}")
+                pred = LLMPrediction(
                     model_name=model_name,
                     provider=provider,
                     probability=0.5,
                     confidence="low",
-                    error=f"Unknown provider: {provider}",
+                    error=str(exc),
                 )
-        except Exception as exc:
-            log.error(f"Error querying {model_name}: {exc}")
-            return LLMPrediction(
-                model_name=model_name,
-                provider=provider,
-                probability=0.5,
-                confidence="low",
-                error=str(exc),
-            )
+            span.set_attribute("llm.probability", float(pred.probability))
+            if pred.error:
+                span.set_attribute("llm.error", str(pred.error)[:200])
+            return pred
 
     @retry_async(max_retries=2, base_delay=3.0)
     async def _query_anthropic(self, model: str, prompt: str) -> LLMPrediction:

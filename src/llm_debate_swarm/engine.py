@@ -9,7 +9,8 @@ Pipeline::
       -> combine into a calibrated Verdict
 
 Both stages are optional and degrade gracefully: if one fails or is disabled,
-the other still produces a verdict.
+the other still produces a verdict. The whole run is OpenTelemetry-instrumented
+(see ``llm_debate_swarm.obs.tracing``); tracing is a no-op until enabled.
 """
 from __future__ import annotations
 
@@ -18,6 +19,7 @@ import asyncio
 from llm_debate_swarm.analysis.multi_llm_analyzer import MultiLLMAnalyzer
 from llm_debate_swarm.analysis.question_classifier import classify_question
 from llm_debate_swarm.config import AppConfig, load_config
+from llm_debate_swarm.obs.tracing import get_tracer
 from llm_debate_swarm.swarm import SwarmSimulator
 from llm_debate_swarm.types import Question, Verdict
 from llm_debate_swarm.utils.logger import get_logger
@@ -68,92 +70,121 @@ class DebateSwarmEngine:
         horizon_days: float | None = None,
     ) -> Verdict:
         """Forecast a single binary question and return a calibrated verdict."""
-        q = Question(
-            question=question,
-            category=category,
-            prior=prior,
-            horizon_days=horizon_days,
-        )
-        classification = classify_question(question, category)
+        tracer = get_tracer()
+        with tracer.start_as_current_span("forecast") as root:
+            root.set_attribute("question", question[:160])
 
-        research_doc = ""
-        if self.research_mgr is not None and self.doc_compiler is not None:
-            try:
-                ctx = await self.research_mgr.research_market(q, classification=classification)
-                research_doc = self.doc_compiler.compile(ctx)
-            except Exception as exc:  # research is best-effort
-                log.warning(f"Research failed, continuing without it: {exc}")
+            q = Question(
+                question=question, category=category, prior=prior, horizon_days=horizon_days
+            )
 
-        labels: list[str] = []
-        tasks: list = []
-        if self.analyzer is not None:
-            labels.append("consensus")
-            tasks.append(self.analyzer.analyze(q, research_doc, ""))
-        if self.swarm is not None:
-            labels.append("swarm")
-            tasks.append(self.swarm.simulate(q, research_doc, classification))
+            with tracer.start_as_current_span("classify"):
+                classification = classify_question(question, category)
+            root.set_attribute("question_type", classification.question_type.value)
 
-        if not tasks:
-            raise ValueError("Both stages are disabled — nothing to run.")
+            research_doc = ""
+            if self.research_mgr is not None and self.doc_compiler is not None:
+                with tracer.start_as_current_span("research"):
+                    try:
+                        ctx = await self.research_mgr.research_market(
+                            q, classification=classification
+                        )
+                        research_doc = self.doc_compiler.compile(ctx)
+                    except Exception as exc:  # research is best-effort
+                        log.warning(f"Research failed, continuing without it: {exc}")
 
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-        by = dict(zip(labels, results))
+            async def _run_consensus():
+                with tracer.start_as_current_span("consensus") as sp:
+                    r = await self.analyzer.analyze(q, research_doc, "")
+                    sp.set_attribute("models_responded", r.models_responded)
+                    sp.set_attribute("consensus_probability", float(r.consensus_probability))
+                    sp.set_attribute("spread", float(r.spread))
+                    return r
 
-        consensus = by.get("consensus")
-        if isinstance(consensus, Exception):
-            log.warning(f"Consensus stage failed: {consensus}")
-            consensus = None
+            async def _run_swarm():
+                with tracer.start_as_current_span("swarm") as sp:
+                    r = await self.swarm.simulate(q, research_doc, classification)
+                    sp.set_attribute("agent_count", r.agent_count)
+                    sp.set_attribute("rounds", r.rounds_completed)
+                    sp.set_attribute("swarm_probability", float(r.probability))
+                    sp.set_attribute("cost_usd", float(r.cost_usd))
+                    if r.error:
+                        sp.set_attribute("error", str(r.error)[:200])
+                    return r
 
-        swarm = by.get("swarm")
-        if isinstance(swarm, Exception):
-            log.warning(f"Swarm stage failed: {swarm}")
-            swarm = None
-        if swarm is not None and getattr(swarm, "error", None):
-            log.warning(f"Swarm error: {swarm.error}")
-            swarm = None
+            labels: list[str] = []
+            tasks: list = []
+            if self.analyzer is not None:
+                labels.append("consensus")
+                tasks.append(_run_consensus())
+            if self.swarm is not None:
+                labels.append("swarm")
+                tasks.append(_run_swarm())
 
-        c_prob = consensus.consensus_probability if (consensus and consensus.is_valid) else None
-        s_prob = swarm.probability if swarm is not None else None
+            if not tasks:
+                raise ValueError("Both stages are disabled — nothing to run.")
 
-        if c_prob is None and s_prob is None:
-            raise RuntimeError("Both consensus and swarm failed — no forecast produced.")
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            by = dict(zip(labels, results))
 
-        if c_prob is not None and s_prob is not None:
-            w = self.swarm_weight
-            probability = (1.0 - w) * c_prob + w * s_prob
-            disagreement = abs(c_prob - s_prob)
-            base_conf = (1.0 - w) * consensus.confidence + w * swarm.confidence
-            confidence = max(0.0, base_conf * (1.0 - disagreement))
-        elif s_prob is not None:
-            probability, confidence, disagreement = s_prob, swarm.confidence, 0.0
-        else:
-            probability, confidence, disagreement = c_prob, consensus.confidence, 0.0
+            consensus = by.get("consensus")
+            if isinstance(consensus, Exception):
+                log.warning(f"Consensus stage failed: {consensus}")
+                consensus = None
 
-        per_model: list[dict] = []
-        if consensus is not None:
-            for p in consensus.predictions:
-                per_model.append({
-                    "model": p.model_name,
-                    "provider": p.provider,
-                    "probability": p.probability,
-                    "confidence": p.confidence,
-                    "error": p.error or "",
-                })
+            swarm = by.get("swarm")
+            if isinstance(swarm, Exception):
+                log.warning(f"Swarm stage failed: {swarm}")
+                swarm = None
+            if swarm is not None and getattr(swarm, "error", None):
+                log.warning(f"Swarm error: {swarm.error}")
+                swarm = None
 
-        return Verdict(
-            question=question,
-            probability=probability,
-            confidence=confidence,
-            consensus_probability=c_prob,
-            swarm_probability=s_prob,
-            disagreement=disagreement,
-            consensus_spread=consensus.spread if consensus else 0.0,
-            anchoring_shift=swarm.anchoring_shift if swarm else 0.0,
-            convergence_ratio=swarm.convergence_ratio if swarm else 1.0,
-            agent_count=swarm.agent_count if swarm else 0,
-            rounds_completed=swarm.rounds_completed if swarm else 0,
-            models_responded=consensus.models_responded if consensus else 0,
-            cost_usd=(swarm.cost_usd if swarm else 0.0),
-            question_type=classification.question_type.value,
-            per_model=per_model,
-        )
+            c_prob = consensus.consensus_probability if (consensus and consensus.is_valid) else None
+            s_prob = swarm.probability if swarm is not None else None
+
+            if c_prob is None and s_prob is None:
+                raise RuntimeError("Both consensus and swarm failed — no forecast produced.")
+
+            if c_prob is not None and s_prob is not None:
+                w = self.swarm_weight
+                probability = (1.0 - w) * c_prob + w * s_prob
+                disagreement = abs(c_prob - s_prob)
+                base_conf = (1.0 - w) * consensus.confidence + w * swarm.confidence
+                confidence = max(0.0, base_conf * (1.0 - disagreement))
+            elif s_prob is not None:
+                probability, confidence, disagreement = s_prob, swarm.confidence, 0.0
+            else:
+                probability, confidence, disagreement = c_prob, consensus.confidence, 0.0
+
+            per_model: list[dict] = []
+            if consensus is not None:
+                for p in consensus.predictions:
+                    per_model.append({
+                        "model": p.model_name,
+                        "provider": p.provider,
+                        "probability": p.probability,
+                        "confidence": p.confidence,
+                        "error": p.error or "",
+                    })
+
+            root.set_attribute("probability", probability)
+            root.set_attribute("disagreement", disagreement)
+
+            return Verdict(
+                question=question,
+                probability=probability,
+                confidence=confidence,
+                consensus_probability=c_prob,
+                swarm_probability=s_prob,
+                disagreement=disagreement,
+                consensus_spread=consensus.spread if consensus else 0.0,
+                anchoring_shift=swarm.anchoring_shift if swarm else 0.0,
+                convergence_ratio=swarm.convergence_ratio if swarm else 1.0,
+                agent_count=swarm.agent_count if swarm else 0,
+                rounds_completed=swarm.rounds_completed if swarm else 0,
+                models_responded=consensus.models_responded if consensus else 0,
+                cost_usd=(swarm.cost_usd if swarm else 0.0),
+                question_type=classification.question_type.value,
+                per_model=per_model,
+            )
