@@ -27,6 +27,60 @@ from llm_debate_swarm.utils.logger import get_logger
 log = get_logger("engine")
 
 
+def combine_verdict(question, consensus, swarm, classification, swarm_weight: float = 0.5) -> Verdict:
+    """Combine a consensus result and/or a swarm result into one calibrated Verdict.
+
+    Either may be ``None`` (that stage was disabled or failed); at least one is
+    required. Shared by :meth:`DebateSwarmEngine.forecast` and the LangGraph
+    orchestration so both surfaces fuse the two stages identically.
+    """
+    c_prob = consensus.consensus_probability if (consensus and consensus.is_valid) else None
+    s_prob = swarm.probability if swarm is not None else None
+
+    if c_prob is None and s_prob is None:
+        raise RuntimeError("Both consensus and swarm failed — no forecast produced.")
+
+    if c_prob is not None and s_prob is not None:
+        w = swarm_weight
+        probability = (1.0 - w) * c_prob + w * s_prob
+        disagreement = abs(c_prob - s_prob)
+        base_conf = (1.0 - w) * consensus.confidence + w * swarm.confidence
+        confidence = max(0.0, base_conf * (1.0 - disagreement))
+    elif s_prob is not None:
+        probability, confidence, disagreement = s_prob, swarm.confidence, 0.0
+    else:
+        probability, confidence, disagreement = c_prob, consensus.confidence, 0.0
+
+    per_model: list[dict] = []
+    if consensus is not None:
+        for p in consensus.predictions:
+            per_model.append({
+                "model": p.model_name,
+                "provider": p.provider,
+                "probability": p.probability,
+                "confidence": p.confidence,
+                "error": p.error or "",
+            })
+
+    return Verdict(
+        question=question,
+        probability=probability,
+        confidence=confidence,
+        consensus_probability=c_prob,
+        swarm_probability=s_prob,
+        disagreement=disagreement,
+        consensus_spread=consensus.spread if consensus else 0.0,
+        anchoring_shift=swarm.anchoring_shift if swarm else 0.0,
+        convergence_ratio=swarm.convergence_ratio if swarm else 1.0,
+        agent_count=swarm.agent_count if swarm else 0,
+        rounds_completed=swarm.rounds_completed if swarm else 0,
+        models_responded=consensus.models_responded if consensus else 0,
+        cost_usd=(swarm.cost_usd if swarm else 0.0),
+        question_type=classification.question_type.value,
+        per_model=per_model,
+    )
+
+
 class DebateSwarmEngine:
     """Orchestrates a multi-LLM consensus and a debate swarm into one verdict.
 
@@ -140,51 +194,9 @@ class DebateSwarmEngine:
                 log.warning(f"Swarm error: {swarm.error}")
                 swarm = None
 
-            c_prob = consensus.consensus_probability if (consensus and consensus.is_valid) else None
-            s_prob = swarm.probability if swarm is not None else None
-
-            if c_prob is None and s_prob is None:
-                raise RuntimeError("Both consensus and swarm failed — no forecast produced.")
-
-            if c_prob is not None and s_prob is not None:
-                w = self.swarm_weight
-                probability = (1.0 - w) * c_prob + w * s_prob
-                disagreement = abs(c_prob - s_prob)
-                base_conf = (1.0 - w) * consensus.confidence + w * swarm.confidence
-                confidence = max(0.0, base_conf * (1.0 - disagreement))
-            elif s_prob is not None:
-                probability, confidence, disagreement = s_prob, swarm.confidence, 0.0
-            else:
-                probability, confidence, disagreement = c_prob, consensus.confidence, 0.0
-
-            per_model: list[dict] = []
-            if consensus is not None:
-                for p in consensus.predictions:
-                    per_model.append({
-                        "model": p.model_name,
-                        "provider": p.provider,
-                        "probability": p.probability,
-                        "confidence": p.confidence,
-                        "error": p.error or "",
-                    })
-
-            root.set_attribute("probability", probability)
-            root.set_attribute("disagreement", disagreement)
-
-            return Verdict(
-                question=question,
-                probability=probability,
-                confidence=confidence,
-                consensus_probability=c_prob,
-                swarm_probability=s_prob,
-                disagreement=disagreement,
-                consensus_spread=consensus.spread if consensus else 0.0,
-                anchoring_shift=swarm.anchoring_shift if swarm else 0.0,
-                convergence_ratio=swarm.convergence_ratio if swarm else 1.0,
-                agent_count=swarm.agent_count if swarm else 0,
-                rounds_completed=swarm.rounds_completed if swarm else 0,
-                models_responded=consensus.models_responded if consensus else 0,
-                cost_usd=(swarm.cost_usd if swarm else 0.0),
-                question_type=classification.question_type.value,
-                per_model=per_model,
+            verdict = combine_verdict(
+                question, consensus, swarm, classification, self.swarm_weight
             )
+            root.set_attribute("probability", verdict.probability)
+            root.set_attribute("disagreement", verdict.disagreement)
+            return verdict

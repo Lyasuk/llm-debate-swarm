@@ -158,11 +158,34 @@ export OTEL_EXPORTER_OTLP_ENDPOINT=https://cloud.langfuse.com/api/public/otel  #
 python trace_demo.py "Will X happen by Y?"
 ```
 
+## LangGraph orchestration
+
+The same pipeline is also exposed as an explicit **LangGraph** `StateGraph` — classify,
+fan out to the consensus and the swarm in parallel, fan in to combine — reusing the very
+same engine components (`combine_verdict`, the analyzer, the swarm), so no logic is
+duplicated. Use it if your stack is standardized on LangGraph:
+
+```bash
+pip install 'llm-debate-swarm[graph]'
+```
+
+```python
+from llm_debate_swarm.graph import forecast_with_graph
+
+verdict = await forecast_with_graph("Will X happen by Y?", use_swarm=False)
+```
+
+```text
+          ┌─> consensus ─┐
+  classify               ├─> combine
+          └─> swarm ──────┘
+```
+
 ## Roadmap
 
 - [x] **Evaluation harness** — reproducible Brier + calibration over 50 resolved questions (see [Evaluation](#evaluation)).
 - [x] **Observability** — OpenTelemetry spans, exportable to Langfuse / Jaeger via OTLP (see [Observability](#observability)).
-- [ ] **LangGraph** orchestration wrapper for the swarm graph.
+- [x] **LangGraph** orchestration surface — `StateGraph` fan-out/fan-in (see [LangGraph orchestration](#langgraph-orchestration)).
 - [ ] FastAPI service + Dockerfile.
 
 ## License

@@ -32,6 +32,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "pytest-asyncio>=0.24", "pytest-mock>=3.14", "ruff>=0.8"]
 otlp = ["opentelemetry-exporter-otlp-proto-http>=1.20"]   # stream spans to Langfuse / Jaeger / Tempo
+graph = ["langgraph>=0.2"]   # LangGraph StateGraph orchestration surface
 
 [project.scripts]
 debate-swarm = "llm_debate_swarm.cli:cli"
