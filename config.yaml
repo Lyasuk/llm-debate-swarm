@@ -1,0 +1,44 @@
+# llm-debate-swarm default configuration.
+# Each stage degrades gracefully if a provider's API key is missing.
+
+analysis:
+  min_models_required: 1
+  extremizing_factor: 1.15
+  models:
+    - { name: claude-haiku-4-5-20251001, provider: anthropic, weight: 0.40 }
+    - { name: gpt-4o-mini,               provider: openai,    weight: 0.30 }
+    - { name: gemini-2.5-flash,          provider: google,    weight: 0.30 }
+
+swarm:
+  enabled: true
+  provider: gemini_multi          # heterogeneous Gemma/Gemini buckets for diversity
+  agent_count: 30
+  debate_rounds: 7
+  blind_rounds: 3                 # independent estimates first (anti-anchoring)
+  premortem_round: 6              # "assume you were wrong — why?"
+  devils_advocate_count: 3
+  batch_size: 8
+  trim_pct: 0.10                  # trimmed-mean / MAD outlier rejection
+  temperature: 0.7
+  max_tokens_per_response: 800
+  timeout_sec: 180
+  meta_model: claude-haiku-4-5-20251001   # meta-synthesis / bias correction
+  swarm_model: gemma-3-27b-it
+  bucket_models:
+    premium: gemini-2.5-flash-lite
+    standard: gemma-3-27b-it
+    nano: gemma-3-4b-it
+  bucket_rpd_limits:
+    premium: 500
+    standard: 14400
+    nano: 14400
+
+research:
+  document_max_chars: 15000
+  cache_ttl_hours: 6
+  sources:
+    tavily: { enabled: false, max_results: 10 }   # set true + TAVILY_API_KEY for --research
+
+tracking:
+  db_path: data/runs.db
+  report_interval: daily
