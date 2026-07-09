@@ -1,0 +1,13 @@
+# Free Groq-only, single-model config — used to measure the single-model baseline
+# the eval compares the consensus against (no Anthropic spend). Swarm disabled.
+analysis:
+  min_models_required: 1
+  extremizing_factor: 1.15
+  models:
+    - { name: llama-3.3-70b-versatile, provider: groq, weight: 1.0 }
+
+swarm:
+  enabled: false
+  provider: groq
+  swarm_model: llama-3.1-8b-instant
+  meta_model: llama-3.3-70b-versatile

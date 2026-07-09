@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import hashlib
-import json
 import pickle
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
 from llm_debate_swarm.config import get_api_key
@@ -173,7 +172,7 @@ class TavilySearch:
         except Exception as exc:
             exc_str = str(exc).lower()
             if "usage limit" in exc_str or "plan" in exc_str or "429" in exc_str or "quota" in exc_str:
-                log.error(f"Tavily quota exhausted, switching to DDG fallback")
+                log.error("Tavily quota exhausted, switching to DDG fallback")
                 self._quota_exhausted = True
                 return await _duckduckgo_fallback(query)
             log.warning(f"Search failed: {exc}")

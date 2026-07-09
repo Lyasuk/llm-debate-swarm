@@ -22,3 +22,6 @@ data/
 .ruff_cache/
 .mypy_cache/
 *.log
+
+# Internal working roadmap (local paths / session notes — not for the public repo)
+PHASE2_HARDENING_SPEC.md

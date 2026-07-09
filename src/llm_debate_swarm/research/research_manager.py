@@ -184,7 +184,6 @@ class ResearchManager:
         if qt == QuestionType.BARRIER:
             asset = classification.asset or "the asset"
             level = classification.level
-            direction = classification.direction or "reach"
             level_str = f"${level:,.0f}" if level else "target level"
             queries = [
                 # 1. Current price + recent trend

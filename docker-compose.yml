@@ -1,0 +1,25 @@
+# One `docker compose up -d` brings up the API + a local trace backend.
+#
+# Deliberate lean choice: Jaeger all-in-one is a SINGLE OTLP-native container for
+# viewing traces locally. Langfuse v3 self-host is a 6-service stack (web + worker
+# + postgres + clickhouse + redis + minio) — overkill for a deploy proof. To use
+# Langfuse or LangSmith instead, drop the LANGFUSE_* / LANGSMITH_* vars into .env
+# and point the API at them (they ship their own compose); the instrumentation is
+# vendor-neutral. Queue/worker/DLQ are documented in DESIGN_DOC, not built here.
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger:4318"
+    depends_on:
+      - jaeger
+    restart: unless-stopped
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.60   # OTLP-native; UI on :16686
+    ports:
+      - "16686:16686"   # trace UI
+    restart: unless-stopped

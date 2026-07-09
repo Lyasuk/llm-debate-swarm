@@ -32,6 +32,8 @@ class LLMPrediction:
     arguments_for: list[str] = field(default_factory=list)
     arguments_against: list[str] = field(default_factory=list)
     error: str | None = None
+    input_tokens: int = 0
+    output_tokens: int = 0
 
 
 @dataclass
@@ -83,9 +85,12 @@ class MultiLLMAnalyzer:
 
         # Query all models concurrently
         import time
+        qid = getattr(market, "_decision_id", None)
+        if qid is None:
+            qid = f"q-{abs(hash(market.question)) % 10**8:08d}"
         start_times = [time.time() for _ in self.models]
         tasks = [
-            self._query_model(model, prompt) for model in self.models
+            self._query_model(model, prompt, question_id=str(qid)) for model in self.models
         ]
         predictions = await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -158,17 +163,18 @@ class MultiLLMAnalyzer:
         return consensus
 
     async def _query_model(
-        self, model_config: LLMModelConfig, prompt: str
+        self, model_config: LLMModelConfig, prompt: str, *, question_id: str | None = None
     ) -> LLMPrediction:
         """Query a single LLM model (OpenTelemetry-traced as an ``llm.query`` span)."""
-        from llm_debate_swarm.obs.tracing import get_tracer
+        import time
+
+        from llm_debate_swarm.obs.tracing import get_tracer, record_llm_span
 
         provider = model_config.provider.lower()
         model_name = model_config.name
 
         with get_tracer().start_as_current_span("llm.query") as span:
-            span.set_attribute("llm.model", model_name)
-            span.set_attribute("llm.provider", provider)
+            t0 = time.time()
             try:
                 if provider == "anthropic":
                     pred = await self._query_anthropic(model_name, prompt)
@@ -195,6 +201,16 @@ class MultiLLMAnalyzer:
                     confidence="low",
                     error=str(exc),
                 )
+            record_llm_span(
+                span,
+                provider=provider,
+                model=model_name,
+                input_tokens=pred.input_tokens,
+                output_tokens=pred.output_tokens,
+                latency_ms=(time.time() - t0) * 1000,
+                role="consensus",
+                question_id=question_id,
+            )
             span.set_attribute("llm.probability", float(pred.probability))
             if pred.error:
                 span.set_attribute("llm.error", str(pred.error)[:200])
@@ -223,7 +239,11 @@ class MultiLLMAnalyzer:
         )
 
         text = response.content[0].text
-        return self._parse_response(text, model, "anthropic")
+        pred = self._parse_response(text, model, "anthropic")
+        if response.usage:
+            pred.input_tokens = response.usage.input_tokens
+            pred.output_tokens = response.usage.output_tokens
+        return pred
 
     @retry_async(max_retries=2, base_delay=3.0)
     async def _query_openai(self, model: str, prompt: str) -> LLMPrediction:
@@ -250,7 +270,11 @@ class MultiLLMAnalyzer:
         )
 
         text = response.choices[0].message.content or ""
-        return self._parse_response(text, model, "openai")
+        pred = self._parse_response(text, model, "openai")
+        if response.usage:
+            pred.input_tokens = response.usage.prompt_tokens
+            pred.output_tokens = response.usage.completion_tokens
+        return pred
 
     @retry_async(max_retries=2, base_delay=3.0)
     async def _query_groq(self, model: str, prompt: str) -> LLMPrediction:
@@ -302,7 +326,11 @@ class MultiLLMAnalyzer:
                 raise
 
         text = response.choices[0].message.content or ""
-        return self._parse_response(text, model, "groq")
+        pred = self._parse_response(text, model, "groq")
+        if response.usage:
+            pred.input_tokens = response.usage.prompt_tokens
+            pred.output_tokens = response.usage.completion_tokens
+        return pred
 
     @retry_async(max_retries=2, base_delay=3.0)
     async def _query_google(self, model: str, prompt: str) -> LLMPrediction:
@@ -343,7 +371,12 @@ class MultiLLMAnalyzer:
         )
 
         text = response.text
-        return self._parse_response(text, model, "google")
+        pred = self._parse_response(text, model, "google")
+        um = getattr(response, "usage_metadata", None)
+        if um:
+            pred.input_tokens = getattr(um, "prompt_token_count", 0) or 0
+            pred.output_tokens = getattr(um, "candidates_token_count", 0) or 0
+        return pred
 
     def _parse_response(
         self, text: str, model_name: str, provider: str

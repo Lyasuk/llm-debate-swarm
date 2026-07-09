@@ -9,6 +9,7 @@ from rich.table import Table
 
 from llm_debate_swarm import __version__
 from llm_debate_swarm.engine import DebateSwarmEngine
+from llm_debate_swarm.graph import forecast_with_graph
 
 console = Console()
 
@@ -34,6 +35,9 @@ def version() -> None:
 @click.option("--research", is_flag=True, help="Enable Tavily web research (needs TAVILY_API_KEY).")
 @click.option("--swarm-weight", type=float, default=0.5, show_default=True,
               help="Blend weight of swarm vs consensus (0=consensus only, 1=swarm only).")
+@click.option("--engine", "engine_kind", type=click.Choice(["graph", "async"]),
+              default="graph", show_default=True,
+              help="Orchestrator: 'graph' = LangGraph (primary), 'async' = raw asyncio.")
 def forecast(
     question: str,
     category: str,
@@ -43,17 +47,29 @@ def forecast(
     no_swarm: bool,
     research: bool,
     swarm_weight: float,
+    engine_kind: str,
 ) -> None:
     """Forecast a binary QUESTION and print a calibrated verdict."""
-    engine = DebateSwarmEngine(
-        use_consensus=not no_consensus,
-        use_swarm=not no_swarm,
-        research=research,
-        swarm_weight=swarm_weight,
-    )
-    verdict = asyncio.run(
-        engine.forecast(question, category=category, prior=prior, horizon_days=horizon_days)
-    )
+    # Web research lives on the async engine only; fall back to it when asked.
+    if research and engine_kind == "graph":
+        console.print("[yellow]--research uses the async engine; switching --engine async.[/]")
+        engine_kind = "async"
+
+    if engine_kind == "graph":
+        verdict = asyncio.run(forecast_with_graph(
+            question, category=category, prior=prior, horizon_days=horizon_days,
+            use_consensus=not no_consensus, use_swarm=not no_swarm, swarm_weight=swarm_weight,
+        ))
+    else:
+        engine = DebateSwarmEngine(
+            use_consensus=not no_consensus,
+            use_swarm=not no_swarm,
+            research=research,
+            swarm_weight=swarm_weight,
+        )
+        verdict = asyncio.run(
+            engine.forecast(question, category=category, prior=prior, horizon_days=horizon_days)
+        )
 
     console.print()
     console.print(f"[bold]Q:[/] {verdict.question}")

@@ -14,7 +14,7 @@ import sqlite3
 import traceback
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Callable, Optional
 
 from llm_debate_swarm.utils.logger import get_logger
 

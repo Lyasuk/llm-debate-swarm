@@ -32,7 +32,8 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "pytest-asyncio>=0.24", "pytest-mock>=3.14", "ruff>=0.8"]
 otlp = ["opentelemetry-exporter-otlp-proto-http>=1.20"]   # stream spans to Langfuse / Jaeger / Tempo
-graph = ["langgraph>=0.2"]   # LangGraph StateGraph orchestration surface
+graph = ["langgraph>=1.2,<2"]   # LangGraph 1.x StateGraph orchestration (1.0 GA changed the API vs 0.x)
+serve = ["fastapi>=0.110", "uvicorn>=0.27"]   # thin FastAPI serving layer (deploy proof)
 
 [project.scripts]
 debate-swarm = "llm_debate_swarm.cli:cli"

@@ -1,5 +1,7 @@
 """Calibrated prompts for probability estimation from LLMs."""
 
+from llm_debate_swarm.security import wrap_untrusted
+
 SUPERFORECASTER_SYSTEM = """\
 You are an expert superforecaster trained in calibrated probability estimation.
 You make predictions by:
@@ -112,7 +114,9 @@ def build_probability_prompt(
         yes_price=yes_price,
         no_price=no_price,
         resolution_source=resolution_source or "Not specified",
-        research_document=research_document[:8000],  # Truncate for token limits
+        # Isolate untrusted evidence as data, not instructions (indirect-injection
+        # surface). Empty research -> "" so bare-question prompts are unchanged.
+        research_document=wrap_untrusted(research_document[:8000], "research / evidence"),
         days_to_resolution=days_to_resolution,
         type_guidance=type_guidance,
     )

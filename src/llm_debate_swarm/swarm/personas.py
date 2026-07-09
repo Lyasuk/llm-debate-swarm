@@ -56,9 +56,6 @@ def assign_model_buckets(personas: list[AgentPersona]) -> None:
         "nano_llama": 7,  # Meta Llama via Groq
         "nano_qwen": 7,   # Alibaba Qwen via Groq (replaced dead nano_e2b)
     }
-    bucket_order = ["premium", "standard_27b", "standard_4b", "nano_llama", "nano_qwen"]
-    counts = {b: 0 for b in bucket_caps}
-
     # BALANCED INTERLEAVE: generate sequence where each bucket appears at
     # evenly-spaced positions. Prevents consecutive same-bucket assignments
     # that cause TPM spikes (problem spotted: positions 10,11 both на 27B
