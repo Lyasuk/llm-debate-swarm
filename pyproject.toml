@@ -44,6 +44,7 @@ packages = ["src/llm_debate_swarm"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+pythonpath = ["."]   # put the repo root on sys.path so tests can import the top-level `eval` package under plain `pytest` (not just `python -m pytest`)
 
 [tool.ruff]
 line-length = 100
