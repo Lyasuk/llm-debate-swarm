@@ -4,12 +4,14 @@ from __future__ import annotations
 import asyncio
 
 import click
+from opentelemetry import trace
 from rich.console import Console
 from rich.table import Table
 
 from llm_debate_swarm import __version__
 from llm_debate_swarm.engine import DebateSwarmEngine
 from llm_debate_swarm.graph import forecast_with_graph
+from llm_debate_swarm.obs.tracing import setup_tracing
 
 console = Console()
 
@@ -50,6 +52,7 @@ def forecast(
     engine_kind: str,
 ) -> None:
     """Forecast a binary QUESTION and print a calibrated verdict."""
+    setup_tracing()  # no-op unless LANGFUSE_*/LANGSMITH_*/OTEL_* env vars are set
     # Web research lives on the async engine only; fall back to it when asked.
     if research and engine_kind == "graph":
         console.print("[yellow]--research uses the async engine; switching --engine async.[/]")
@@ -97,6 +100,12 @@ def forecast(
                 f"{m['probability']:.1%}", (m["error"] or "")[:40],
             )
         console.print(table)
+
+    # BatchSpanProcessor exports in a background thread; flush before the
+    # process exits or OTLP backends silently lose the run's spans.
+    provider = trace.get_tracer_provider()
+    if hasattr(provider, "force_flush"):
+        provider.force_flush()
 
 
 if __name__ == "__main__":
