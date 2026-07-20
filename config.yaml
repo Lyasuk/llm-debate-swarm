@@ -9,7 +9,7 @@ analysis:
   models:
     - { name: claude-haiku-4-5-20251001, provider: anthropic, weight: 0.40 }
     - { name: llama-3.3-70b-versatile,   provider: groq,      weight: 0.30 }
-    - { name: qwen/qwen3.6-27b,          provider: groq,      weight: 0.30 }
+    - { name: openai/gpt-oss-20b,        provider: groq,      weight: 0.30 }
 
 swarm:
   enabled: true

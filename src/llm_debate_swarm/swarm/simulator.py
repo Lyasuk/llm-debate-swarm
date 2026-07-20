@@ -701,14 +701,28 @@ class SwarmSimulator:
         self, agent: AgentState, messages: list[dict]
     ) -> str:
         """Query a single agent. Supports OpenAI, Gemini, Groq, Gemini-multi providers."""
-        if self._swarm_provider == "gemini_multi":
-            return await self._query_gemini_multi_agent(agent, messages)
-        elif self._swarm_provider == "google":
-            return await self._query_gemini_agent(agent, messages)
-        elif self._swarm_provider == "groq":
-            return await self._query_groq_agent(agent, messages)
-        else:
-            return await self._query_openai_agent(agent, messages)
+        from llm_debate_swarm.obs.tracing import get_tracer
+
+        # One span per attempt (the retry decorator re-enters), so 429 retries
+        # are visible in the trace. `is_devils_advocate` grows once per round
+        # before queries launch, so its length IS the current round number.
+        with get_tracer().start_as_current_span("swarm.agent") as span:
+            span.set_attribute("gen_ai.provider.name", str(self._swarm_provider))
+            span.set_attribute("gen_ai.request.model", str(self.config.swarm_model))
+            # Raw attrs show up in Langfuse/Jaeger; LangSmith's OTLP ingest drops
+            # unrecognized keys, so mirror them under its langsmith.metadata.* namespace.
+            span.set_attribute("swarm.persona", str(agent.persona.id))
+            span.set_attribute("swarm.round", len(agent.is_devils_advocate))
+            span.set_attribute("langsmith.metadata.swarm_persona", str(agent.persona.id))
+            span.set_attribute("langsmith.metadata.swarm_round", len(agent.is_devils_advocate))
+            if self._swarm_provider == "gemini_multi":
+                return await self._query_gemini_multi_agent(agent, messages)
+            elif self._swarm_provider == "google":
+                return await self._query_gemini_agent(agent, messages)
+            elif self._swarm_provider == "groq":
+                return await self._query_groq_agent(agent, messages)
+            else:
+                return await self._query_openai_agent(agent, messages)
 
     def _get_gemini_model_by_name(self, model_name: str):
         """Cache Gemini model instances by name."""

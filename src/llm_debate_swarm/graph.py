@@ -45,6 +45,7 @@ from llm_debate_swarm.analysis.prompts.probability_prompts import build_probabil
 from llm_debate_swarm.analysis.question_classifier import classify_question
 from llm_debate_swarm.config import AppConfig, load_config
 from llm_debate_swarm.engine import combine_verdict
+from llm_debate_swarm.obs.tracing import get_tracer
 from llm_debate_swarm.swarm import SwarmSimulator
 from llm_debate_swarm.types import Question, Verdict
 
@@ -139,7 +140,10 @@ def build_forecast_graph(
             question=payload["question"], category=payload.get("category", ""),
             prior=payload.get("prior"), horizon_days=payload.get("horizon_days"),
         )
-        return {"swarm": await swarm.simulate(q, "", payload["classification"])}
+        # Stage span mirrors the async engine's "swarm"; the per-agent
+        # swarm.agent spans created inside simulate() nest under it.
+        with get_tracer().start_as_current_span("swarm"):
+            return {"swarm": await swarm.simulate(q, "", payload["classification"])}
 
     async def combine_node(state: ForecastState) -> dict:
         return {"verdict": combine_verdict(
@@ -185,10 +189,15 @@ async def forecast_with_graph(
     ``recursion_limit`` is the emergency stop, not a control mechanism.
     """
     graph = build_forecast_graph(**kwargs)
-    coro = graph.ainvoke(
-        {"question": question, "category": category,
-         "prior": prior, "horizon_days": horizon_days},
-        config={"recursion_limit": recursion_limit},
-    )
-    out = await (asyncio.wait_for(coro, timeout=timeout_sec) if timeout_sec else coro)
+    # Root span makes the whole run ONE trace (node/LLM spans nest under it via
+    # asyncio context propagation); without it every llm.query lands as its own
+    # top-level trace in the OTLP backend.
+    with get_tracer().start_as_current_span("forecast") as root:
+        root.set_attribute("forecast.question", question)
+        coro = graph.ainvoke(
+            {"question": question, "category": category,
+             "prior": prior, "horizon_days": horizon_days},
+            config={"recursion_limit": recursion_limit},
+        )
+        out = await (asyncio.wait_for(coro, timeout=timeout_sec) if timeout_sec else coro)
     return out["verdict"]
